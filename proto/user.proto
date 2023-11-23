@@ -25,18 +25,3 @@ message Person {
 message PersonInfo {
   repeated Person info = 1;
 }
-
-// 定义服务
-message SearchRequest {
-  string name = 1;
-}
-
-message SearchResponse {
-  string name = 1;
-  int32 age = 2;
-}
-
-service SearchService {
-  // rpc 服务的函数名 (传入参数) 返回 (返回参数)
-  rpc Search(SearchRequest) returns(SearchResponse);
-}

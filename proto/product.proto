@@ -1,0 +1,24 @@
+// protoc --go_out=./ --go-grpc_out=./ ./product.proto
+syntax = "proto3";
+
+// 生成包的路径
+option go_package="../service";
+
+// 生成消息的包名
+package service;
+
+
+// 定义服务请求
+message ProductRequest {
+  int32 prod_id = 1;
+}
+// 定义服务响应
+message ProductResponse {
+  int32 prod_stock = 1;
+}
+
+// 定义服务主体
+service ProdService {
+  // rpc 服务的函数名 (传入参数) 返回 (返回参数)
+  rpc GetProductStock(ProductRequest) returns(ProductResponse);
+}

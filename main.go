@@ -7,7 +7,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func main() {
+func main2() {
 	user := &service.User{
 		Username: "lizy",
 		Age:      25,
