@@ -1,0 +1,14 @@
+// 语法版本是 proto3
+syntax = "proto3";
+
+// 生成包的路径
+option go_package="../service";
+
+// 生成消息的包名
+package service;
+
+// 消息
+message User {
+  string username = 1;
+  int32 age = 2;
+}
