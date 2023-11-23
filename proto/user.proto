@@ -1,3 +1,4 @@
+// 生成语法: protoc --go_out=./ ./user.proto
 // 语法版本是 proto3
 syntax = "proto3";
 
@@ -11,4 +12,31 @@ package service;
 message User {
   string username = 1;
   int32 age = 2;
+  string password = 3;
+  repeated string addresses = 4;
+}
+
+message Person {
+  string name = 1;
+  int32 height = 2;
+  repeated int32 weight = 3;
+}
+
+message PersonInfo {
+  repeated Person info = 1;
+}
+
+// 定义服务
+message SearchRequest {
+  string name = 1;
+}
+
+message SearchResponse {
+  string name = 1;
+  int32 age = 2;
+}
+
+service SearchService {
+  // rpc 服务的函数名 (传入参数) 返回 (返回参数)
+  rpc Search(SearchRequest) returns(SearchResponse);
 }
