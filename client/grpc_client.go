@@ -6,13 +6,21 @@ import (
 	"go-grpc-demo/service"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 )
 
 func main() {
+
+	// 一般使用 https
+	// 输入公钥
+	creds, err2 := credentials.NewClientTLSFromFile("../cert/server.pem", "*.lizyzzz.com")
+	if err2 != nil {
+		panic(err2)
+	}
+
 	// 无认证 grpc http/2
-	// 但一般使用 https
-	conn, err := grpc.Dial(":8002", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// conn, err := grpc.Dial(":8002", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(":8002", grpc.WithTransportCredentials(creds))
 
 	if err != nil {
 		panic(err)
