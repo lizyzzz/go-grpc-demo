@@ -10,6 +10,8 @@ import (
 )
 
 func main() {
+	// 无认证 grpc http/2
+	// 但一般使用 https
 	conn, err := grpc.Dial(":8002", grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
