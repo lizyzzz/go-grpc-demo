@@ -26,8 +26,32 @@ message ProductResponse {
   google.protobuf.Any data = 3;
 }
 
+// 双向流客户端消息
+message ClientMsg {
+  string info = 1;
+  int32 first = 2;
+  int32 second = 3;
+}
+// 双向流服务端消息
+message ServerMsg {
+  string info = 1;
+  int32 result = 2;
+}
+
 // 定义服务主体
 service ProdService {
   // rpc 服务的函数名 (传入参数) 返回 (返回参数)
   rpc GetProductStock(ProductRequest) returns(ProductResponse);
+
+  // 客户端流
+  // 客户端发送多个请求, 服务端只回复一个响应
+  rpc UpdateProductStockClientStream(stream ProductRequest) returns(ProductResponse);
+
+  // 服务端流
+  // 客户端发送一个请求, 服务端回复多个响应
+  rpc GetProductStockServerStream(ProductRequest) returns(stream ProductResponse);
+
+  // 双向流
+  // 客户端和服务端都能发多个消息, 通信模式
+  rpc SayHelloStream(stream ClientMsg) returns(stream ServerMsg);
 }

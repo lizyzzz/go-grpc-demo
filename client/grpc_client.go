@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"go-grpc-demo/client/auth"
 	"go-grpc-demo/service"
+	"io"
 	"os"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -70,7 +72,7 @@ func main() {
 	request := &service.ProductRequest{
 		ProdId: 123,
 	}
-
+	// 1. 普通模式请求与响应
 	stockResponse, err := prodClient.GetProductStock(context.Background(), request)
 	if err != nil {
 		panic(err)
@@ -78,5 +80,87 @@ func main() {
 
 	fmt.Println("Get stock", stockResponse.GetProdStock())
 	fmt.Println("Get User", stockResponse.GetUser().String())
-	fmt.Println("Get User", stockResponse.GetData().String())
+	fmt.Println("Get Data", stockResponse.GetData().String())
+
+	// 2. 客户端流模式的请求和获取响应
+	fmt.Println("client stream ---------------- ")
+
+	client_stream, err := prodClient.UpdateProductStockClientStream(context.Background())
+	if err != nil {
+		panic(err)
+	}
+	rsp := make(chan struct{}, 1)
+
+	// 开启请求协程
+	go func(stream service.ProdService_UpdateProductStockClientStreamClient, c chan struct{}) {
+		for i := 0; i < 10; i++ {
+			req := &service.ProductRequest{
+				ProdId: 100,
+			}
+			err := stream.Send(req)
+			if err != nil {
+				panic(err)
+			}
+		}
+		c <- struct{}{}
+	}(client_stream, rsp)
+
+	// 接收响应
+	select {
+	case <-rsp:
+		recv, err := client_stream.CloseAndRecv()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("Get stock", recv.GetProdStock())
+		fmt.Println("Get User", recv.GetUser().String())
+		fmt.Println("Get Data", recv.GetData().String())
+	}
+
+	// 3. 服务端流模式的请求和获取响应
+	fmt.Println("server stream ---------------- ")
+	server_stream, err := prodClient.GetProductStockServerStream(context.Background(), request)
+	var count int32 = 0
+	for {
+		client_recv, err := server_stream.Recv()
+		if err != nil {
+			if err == io.EOF {
+				fmt.Println("server stream recv end....")
+				err = server_stream.CloseSend()
+				if err != nil {
+					panic(err)
+				}
+				break
+			}
+			panic(err)
+		}
+		count++
+		fmt.Println("count:", count, "Get stock", client_recv.GetProdStock())
+	}
+
+	// 4. 双向流模式的请求和获取响应
+	fmt.Println("client-server stream ---------------- ")
+	stream, err := prodClient.SayHelloStream(context.Background())
+	if err != nil {
+		panic(err)
+	}
+	// 客户端发送和接收
+	for i := 0; i < 10; i++ {
+		// 先发送消息
+		clientMsg := &service.ClientMsg{
+			Info:   "Add operation",
+			First:  int32(i),
+			Second: 10,
+		}
+		stream.Send(clientMsg)
+		fmt.Println("send clientMsg:", clientMsg.String())
+		time.Sleep(time.Second * 1)
+		// 再接收消息
+		serverMsg, err := stream.Recv()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("recv serverMsg:", serverMsg.String())
+	}
+
 }
