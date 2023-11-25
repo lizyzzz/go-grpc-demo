@@ -1,12 +1,19 @@
 // protoc --go_out=./ --go-grpc_out=./ ./product.proto
 syntax = "proto3";
 
+// 从执行 protoc 命令的当前目录开始算起
+import "user.proto";
+import "google/protobuf/any.proto";
+
 // 生成包的路径
 option go_package="../service";
 
 // 生成消息的包名
 package service;
 
+message Content {
+  string msg = 1;
+}
 
 // 定义服务请求
 message ProductRequest {
@@ -15,6 +22,8 @@ message ProductRequest {
 // 定义服务响应
 message ProductResponse {
   int32 prod_stock = 1;
+  User user = 2;
+  google.protobuf.Any data = 3;
 }
 
 // 定义服务主体

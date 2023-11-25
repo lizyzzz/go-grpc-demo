@@ -77,5 +77,6 @@ func main() {
 	}
 
 	fmt.Println("Get stock", stockResponse.GetProdStock())
-
+	fmt.Println("Get User", stockResponse.GetUser().String())
+	fmt.Println("Get User", stockResponse.GetData().String())
 }
